@@ -1,0 +1,73 @@
+---
+name: skill-refine
+description: Auto-improves a Claude Code skill using Karpathy's autoresearch loop — baseline eval, targeted mutation, re-measure, keep or revert. Produces a delta report. Use when refining a skill, improving a skill, running autoresearch on a skill, or when skill-eval reports pass rate below threshold.
+compatibility: "Claude Code. Node.js ≥ 18. Requires Agent tool for skill-eval-agent invocation."
+---
+
+# Skill Refine
+
+Apply Karpathy's autoresearch loop to measurably improve a skill. Diagnose → targeted fix → verified improvement. No guessing, no rewrites.
+
+## Prerequisite
+
+`skill-eval` must have run first. You need a baseline and a `refine-input.json`. If neither exists, run `skill-eval` now.
+
+## The Loop
+
+```
+RULE:    One lever per iteration. Score ↑ (>+2%) → keep. Score ↓ (>−5%) → revert. Repeat.
+TARGET:  eval_pass_rate ≥ 80%  AND  trigger_accuracy ≥ 85%  AND  resilience_score ≥ 8/10
+BUDGET:  default 10 iterations, stop early at 95%+ for 3 consecutive
+```
+
+## Workflow
+
+1. **Gather inputs** — load `skills/<skill-name>/SKILL-EVAL.md` and `evals/<skill-name>/refine-input.json` (the structured handoff from skill-eval). Confirm budget and runs-per-experiment with the user (default: 10 iterations, 3 reps each).
+
+2. **Back up and validate baseline** — copy the current skill before touching anything:
+   ```bash
+   cp skills/<skill-name>/SKILL.md skills/<skill-name>/SKILL.md.baseline
+   ```
+   Then check staleness: if `refine-input.json` was written today **and** `SKILL.md` has not been modified since — trust the baseline scores directly, no re-run needed. If the skill was changed since eval ran, re-run only the failing scenarios (3 reps, same parallel subagent pattern as skill-eval) to refresh the baseline before proceeding. If baseline is already ≥ 90%, ask the user whether to continue.
+
+3. **Route by failing metric** — the correct lever depends on *which* metric is failing:
+   - **Project Fit Score < 7** → check which scenarios drove it down:
+     - If `project-native` or `project-workflow` failed → Exit. Re-run `skill-adapt` with richer `evals/project-context.json`. Refining won't fix a mis-adapted skill.
+     - If ONLY `multi-turn` failed (project-native and project-workflow passed) → do NOT exit. Work Lever B this session: add a continuation-awareness note to the step whose output the multi-turn scenario re-asked for.
+   - **Resilience Score < 8/10** → work Lever A (description) only this session. The skill is firing on adversarial probes — the trigger language is too broad. Tighten the "Use when" clause and add negative examples (what the skill should NOT handle). Don't touch B–E until resilience passes.
+   - **Trigger Accuracy < 85%** → work Lever A (description) only this session. Don't touch B–E until triggers are stable.
+   - **Eval Pass Rate < 80%** (triggers and resilience fine) → work Levers B–E.
+   - **Multiple failing** → fix Lever A first; pass rate and resilience issues are often downstream of description problems.
+
+4. **Train/test split** — treat the failing scenarios from `refine-input.json` as the *training set* (mutate against these). Hold the `project-native`, `project-workflow`, and `multi-turn` scenarios as the *validation set* (run only on final validation, not during iterations).
+
+   Exception: `adversarial` scenarios belong on the **training set** even when resilience_score is the failing metric — they are the most direct signal for Lever A mutations and must be checked each iteration. Running them only at final validation defeats the purpose of tightening the description.
+
+   This split prevents overfitting the skill to its own eval suite.
+
+5. **Hypothesis** — pick ONE change from the lever space. Consult the failure mode → lever table in REFERENCE.md. Track which levers have been tried this session (coverage) — in early iterations, vary lever types; in later iterations, exploit the best-performing lever.
+
+6. **Mutate** — make exactly the targeted edit. No other changes.
+
+7. **Re-eval (training set only)** — re-run the failing scenarios using skill-eval's exact methodology: parallel subagents (with-skill vs baseline snapshot), 3 reps each, programmatic trigger detection first, then LLM judge scoring using the rubric in skill-eval's REFERENCE.md. Also run 1 rep of each previously-passing scenario as a regression check. Use the same scoring formula: `(Trigger × 0.4) + (Checklist × 0.3) + (Output × 0.3)`.
+
+8. **Keep or revert** (see thresholds in REFERENCE.md):
+   - Improved → **KEEP**. Sync to runtime: `cp -r skills/<skill-name> ~/.claude/skills/`
+   - Regressed or neutral → **REVERT** to prior content exactly.
+   - Log the iteration either way — failed hypotheses are data.
+
+9. **Repeat** steps 5–8 until any convergence criterion is met (see REFERENCE.md).
+
+10. **Final validation** — invoke `skill-eval` on the improved skill with `--context evals/project-context.json`. Do not implement a separate eval process — skill-eval IS the final validation. This produces a new `SKILL-EVAL.md` replacing the old one, giving a clean before/after comparison on identical methodology. The held-out `project-native`, `project-workflow`, and `multi-turn` scenarios run here for the first time during this refinement session. All 5 metrics (including resilience_score) must be reported.
+
+11. **Write report** — save `skills/<skill-name>/SKILL-REFINE-LOG.md` using the template in REFERENCE.md. If claude-mem is installed, persist a summary there too.
+
+## Rules
+
+- **One lever per iteration** — never change description AND checklist in the same iteration.
+- **Revert faithfully** — restore the exact prior content, not a rewrite of it.
+- **Log every iteration** — including failed hypotheses. They're data.
+- **Don't rewrite** — if pass rate < 40% after 5 iterations, recommend `write-a-skill` instead.
+- **Never skip the baseline backup** — `SKILL.md.baseline` must exist before the first mutation.
+
+See [REFERENCE.md](REFERENCE.md) for lever definitions, keep/revert thresholds, hypothesis guide, good/bad mutations, convergence criteria, and log template.

@@ -1,0 +1,43 @@
+# skill-builder generated artifacts
+evals/
+skills/*-backup-*/
+skills/*-eval-snapshot/
+skills/*.baseline
+
+# Secrets and credentials
+.env
+.env.*
+*.key
+*.pem
+secrets/
+credentials/
+
+# Raw scrape exports (large, potentially sensitive)
+data/raw/
+
+# AI-generated image drafts (not approved for use)
+creative/generated/
+
+# NotebookLM source packs (may contain client-sensitive materials)
+research/notebooklm/source-packs/
+
+# Platform metric exports (raw, may contain PII)
+data/raw/platform-exports/
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (if scripts are added later)
+node_modules/
+npm-debug.log*
+
+# Python (if analysis scripts are added)
+__pycache__/
+*.pyc
+.venv/
+venv/
