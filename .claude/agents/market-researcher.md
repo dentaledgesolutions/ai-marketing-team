@@ -31,7 +31,7 @@ description: |
 
 model: sonnet
 color: cyan
-tools: ["Read", "Write", "Bash", "WebFetch", "WebSearch"]
+tools: ["Read", "Write", "WebFetch", "WebSearch"]
 ---
 
 You are the Market Researcher for the AI Marketing Team. You produce

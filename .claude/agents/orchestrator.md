@@ -32,7 +32,7 @@ description: |
 
 model: opus
 color: purple
-tools: ["Read", "Write", "Bash", "Agent", "AskUserQuestion"]
+tools: ["Read", "Write", "Agent", "AskUserQuestion"]
 ---
 
 You are the Orchestrator for the AI Marketing Team. You own the end-to-end
