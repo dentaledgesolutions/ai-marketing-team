@@ -116,6 +116,29 @@ Every campaign passes through these gates in order:
 - Source notes: include citation or source reference for any research-backed claim
 - Status line: every output file ends with `**Status:** Ready for client / Needs review / Rejected`
 
+## Skill Development
+
+This project uses the Skill Builder pipeline to source, adapt, evaluate, and improve skills.
+Skills live in `.claude/skills/`. Agents live in `.claude/agents/`.
+
+**To add a new skill:**
+1. Run `skill-needs-analysis-agent` for a prioritized gap analysis against `evals/project-context.json`
+2. Run `skill-scout` (or `skill-scout-agent`) to find existing candidates in registries and GitHub
+3. Run `skill-audit` → security gate before any external skill is installed
+4. Run `skill-adapt` → rewrites the skill using dental/HIPAA terminology and SE Florida context
+5. Run `skill-eval` → measures against scenario types and produces pass rate + trigger accuracy
+6. Run `skill-refine` → auto-improves if any metric is below threshold
+
+**Never install an external skill without a `skill-audit` PASS verdict.**
+
+**Domain constraints injected during `skill-adapt`:**
+- All content requires human approval before publishing
+- Patient photos and testimonials require HIPAA marketing authorization
+- Target geography: Miami-Dade, Broward, Palm Beach counties
+- Platforms: Instagram, Facebook, TikTok, YouTube Shorts, Google Business Profile
+- Languages: English and Spanish (bilingual clients flag `bilingual: true` in brand-context.md)
+- Compliance: PHI-free outputs, no guaranteed results, no clinical diagnosis language
+
 ## Domain Terms
 
 - **PHI**: Protected Health Information — patient data protected under HIPAA; never used in marketing content without explicit written authorization
