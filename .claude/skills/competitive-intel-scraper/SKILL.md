@@ -509,8 +509,8 @@ Competitive intelligence collected by this skill is for internal strategic use o
 
 ## Dependencies
 - DataForSEO (`DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD` — Labs, SERP Maps, Business Data, Backlinks APIs)
-- Firecrawl (competitor website content crawl)
-- Apify (public social profile data — Instagram, Facebook, TikTok, YouTube)
+- Firecrawl (primary — competitor website content crawl) or Crawl4AI (fallback: `crwl <url> -o markdown` — preferred for high-volume competitor audits to reduce API cost)
+- Apify (`APIFY_API_TOKEN` — public social profile data only; Firecrawl and Crawl4AI cannot replace this)
 - `client-context-ingestion` (must run first)
 - `market-research` (must run first — provides market-context.md)
 - `keyword-research` (required for Full Audit — provides keyword-clusters.md for SERP competitor queries)

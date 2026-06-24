@@ -351,7 +351,7 @@ logs/
 
 ## Dependencies
 - DataForSEO (for Google Reviews + local pack — `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD` env vars)
-- Firecrawl (for website content, GBP posts/Q&A, supplementary web research)
+- Firecrawl (primary — website content, GBP posts/Q&A, web research) or Crawl4AI (fallback: `crwl <url> -o markdown`)
 - NotebookLM (for deep synthesis — conditional)
 - `client-context-ingestion` (must run first)
 - `_context/global/southeast-florida-market.md`

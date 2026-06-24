@@ -4,7 +4,7 @@ An AI Marketing Team that coordinates Claude Code skills, subagents, research wo
 
 ## Quick Facts
 
-- **Stack**: Claude Code, Apify, Firecrawl, DataForSEO, NotebookLM, Gemini (image generation), Markdown, JSON, Shell
+- **Stack**: Claude Code, Apify, Firecrawl, Crawl4AI, DataForSEO, NotebookLM, Gemini (image generation), Markdown, JSON, Shell
 - **Commands**: N/A — Claude Code configuration project
 - **Target market**: Private dental practices in Miami-Dade, Broward, and Palm Beach counties
 - **Languages**: English and Spanish content support
@@ -102,9 +102,10 @@ Every campaign passes through these gates in order:
 ## Tool Policy
 
 - **DataForSEO** — primary source for keyword intelligence: search volume, keyword ideas, PAA via SERP API, Google Maps local pack, Google Trends velocity, competitor ranked keywords, domain rank overview, and Google Reviews data. Credentials: `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD` env vars. API calls made via curl in the main session — never hardcode credentials. Base URL: `https://api.dataforseo.com/v3/`
-- **Firecrawl** — competitor content structure (page titles, H1s, FAQ content), practice websites, blogs, landing pages, public web research. Complements DataForSEO — Firecrawl reads content, DataForSEO provides search intelligence
+- **Firecrawl** — primary web content extraction: practice websites, competitor pages, blogs, landing pages, GBP Q&A, public web research. Managed hosted service — preferred for reliability and one-off crawls. Credential: `FIRECRAWL_API_KEY` env var
+- **Crawl4AI** — secondary web content extraction: same use cases as Firecrawl but self-hosted, free, and zero API cost. Use for high-volume crawl cycles (e.g., monthly competitor audits across many pages) where Firecrawl cost is a concern. Integrates with Claude Code via MCP when running as a Docker container. Install: `pip install crawl4ai && crawl4ai-setup`. CLI: `crwl <url>`. Does NOT replace Apify for social platform data — only covers standard web pages
 - **NotebookLM** — source-grounded research synthesis; deep research packets and reusable knowledge
-- **Apify** — public social scraping (Instagram, TikTok, Facebook, YouTube); never private or logged-in content
+- **Apify** — public social platform scraping (Instagram, TikTok, Facebook, YouTube): engagement metrics, post data, comment patterns, follower counts, hashtag feeds. Irreplaceable for social data — Firecrawl and Crawl4AI cannot extract structured social metrics. Never scrape private, logged-in, or restricted content. Credential: `APIFY_API_TOKEN` env var
 - **Gemini / Nano Banana** — draft social visuals only; never realistic patient before/after; never real patient likeness; assets stay in `creative/generated/` until approved
 - **Credentials** — store all API keys in environment variables; never commit to repo
 

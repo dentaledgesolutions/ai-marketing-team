@@ -202,7 +202,7 @@ When updating (not onboarding):
 - **PHI detected in provided materials** — remove immediately; do not include in any output file; note that materials contained PHI and were sanitized
 
 ## Dependencies
-- Firecrawl (for website and GBP crawl)
+- Firecrawl (primary — for website and GBP crawl) or Crawl4AI (fallback: `crwl <url> -o markdown`)
 - `_context/global/dental-service-taxonomy.md` (for service categorization)
 - `_templates/competitor-matrix.csv` (for competitor stub entries)
 

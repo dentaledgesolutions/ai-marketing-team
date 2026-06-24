@@ -545,7 +545,7 @@ If `DATAFORSEO_LOGIN` or `DATAFORSEO_PASSWORD` env vars are not set:
 
 ## Dependencies
 - DataForSEO (primary — `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD` env vars)
-- Firecrawl (competitor content structure — supplementary)
+- Firecrawl (primary — competitor content structure) or Crawl4AI (fallback: `crwl <url> -o markdown`)
 - `market-research` (must run first — provides service demand matrix and patient personas)
 - `_context/global/dental-service-taxonomy.md`
 - `_context/global/southeast-florida-market.md`
