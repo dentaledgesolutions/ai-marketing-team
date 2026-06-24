@@ -4,7 +4,7 @@ An AI Marketing Team that coordinates Claude Code skills, subagents, research wo
 
 ## Quick Facts
 
-- **Stack**: Claude Code, Apify, Firecrawl, NotebookLM, Gemini (image generation), Markdown, JSON, Shell
+- **Stack**: Claude Code, Apify, Firecrawl, DataForSEO, NotebookLM, Gemini (image generation), Markdown, JSON, Shell
 - **Commands**: N/A — Claude Code configuration project
 - **Target market**: Private dental practices in Miami-Dade, Broward, and Palm Beach counties
 - **Languages**: English and Spanish content support
@@ -101,7 +101,8 @@ Every campaign passes through these gates in order:
 
 ## Tool Policy
 
-- **Firecrawl** — websites, competitor service pages, blogs, landing pages, public web research
+- **DataForSEO** — primary source for keyword intelligence: search volume, keyword ideas, PAA via SERP API, Google Maps local pack, Google Trends velocity, competitor ranked keywords, domain rank overview, and Google Reviews data. Credentials: `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD` env vars. API calls made via curl in the main session — never hardcode credentials. Base URL: `https://api.dataforseo.com/v3/`
+- **Firecrawl** — competitor content structure (page titles, H1s, FAQ content), practice websites, blogs, landing pages, public web research. Complements DataForSEO — Firecrawl reads content, DataForSEO provides search intelligence
 - **NotebookLM** — source-grounded research synthesis; deep research packets and reusable knowledge
 - **Apify** — public social scraping (Instagram, TikTok, Facebook, YouTube); never private or logged-in content
 - **Gemini / Nano Banana** — draft social visuals only; never realistic patient before/after; never real patient likeness; assets stay in `creative/generated/` until approved

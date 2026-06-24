@@ -101,15 +101,47 @@ If triggered:
    - Summarize key findings for Knowledge Librarian to convert into `research/notebooklm/research-digests/{client-slug}-market-digest.md`
 
 ### Step 5 — GBP competitive scan
-For each competitor in `_context/clients/{client-slug}/competitors.md`, extract publicly available GBP data:
-- Star rating and total review count
-- Review velocity: how recent are the most recent reviews?
-- Recurring themes in public reviews (tone of patient satisfaction — no PHI)
-- Number of GBP posts visible and recency (is the GBP active or neglected?)
-- Any Q&A entries visible
-- Special attributes: "women-led," "Spanish-speaking staff," "wheelchair accessible," etc.
+For each competitor in `_context/clients/{client-slug}/competitors.md`, use the DataForSEO Business Data API to pull structured Google review data, then supplement with Firecrawl for GBP post and Q&A content.
 
-Summarize into a GBP competitive snapshot table. Note which competitors are winning on GBP and which are neglecting it — neglect is an opportunity.
+**DataForSEO Business Data API — Google Reviews:**
+```bash
+AUTH=$(echo -n "$DATAFORSEO_LOGIN:$DATAFORSEO_PASSWORD" | base64)
+curl -s -X POST "https://api.dataforseo.com/v3/business_data/google/reviews/task_post" \
+  -H "Authorization: Basic $AUTH" \
+  -H "Content-Type: application/json" \
+  -d '[{
+    "keyword": "Brickell Smiles Miami FL",
+    "location_name": "Miami,Florida,United States",
+    "language_name": "English",
+    "depth": 100
+  }]'
+```
+
+Run for the client practice and each competitor. From the structured response, extract:
+- Star rating and total review count
+- Review velocity: timestamps of the 10 most recent reviews
+- Recurring language themes in review text (tone, experience descriptors — no PHI, no verbatim copying)
+- Any attributes returned (Spanish-speaking staff, wheelchair accessible, etc.)
+
+**Also use DataForSEO SERP Maps API to confirm local pack presence:**
+```bash
+curl -s -X POST "https://api.dataforseo.com/v3/serp/google/maps/live/advanced" \
+  -H "Authorization: Basic $AUTH" \
+  -H "Content-Type: application/json" \
+  -d '[{
+    "keyword": "dental implants miami",
+    "location_name": "Miami,Florida,United States",
+    "language_name": "English"
+  }]'
+```
+
+Run for each priority service + city combination. Note which competitors appear in the local 3-pack — this is the highest-visibility position for local dental searches.
+
+Supplement with Firecrawl for GBP post recency and Q&A content (not available via DataForSEO).
+
+Summarize all findings into a GBP competitive snapshot table. Note which competitors are winning on GBP and which are neglecting it — neglect is an opportunity.
+
+If DataForSEO credentials are unavailable, fall back to Firecrawl and manual GBP observation.
 
 ### Step 6 — Build service demand matrix
 For each priority service, score demand across three dimensions (1–5 scale):
@@ -318,7 +350,8 @@ logs/
 - **Research goes stale mid-campaign** — re-run Steps 2–3 only; update market-context.md with a dated refresh block; do not rewrite the full brief
 
 ## Dependencies
-- Firecrawl (for web research — English and Spanish)
+- DataForSEO (for Google Reviews + local pack — `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD` env vars)
+- Firecrawl (for website content, GBP posts/Q&A, supplementary web research)
 - NotebookLM (for deep synthesis — conditional)
 - `client-context-ingestion` (must run first)
 - `_context/global/southeast-florida-market.md`

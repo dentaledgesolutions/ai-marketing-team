@@ -61,6 +61,7 @@ Sources to check:
 - Manual social browsing (trending dental hashtags, competitor posts)
 - Industry news and dental trade publications
 - Previous watchlist items from `reports/weekly-trend-reports/`
+- **DataForSEO Google Trends API** — use to validate signal velocity with search data (see below)
 
 For each candidate, record:
 - Trend name or description
@@ -68,6 +69,30 @@ For each candidate, record:
 - First signal date
 - Source accounts or URLs
 - Volume estimate (views, uses, posts)
+
+**DataForSEO Google Trends validation (for Signal Velocity criterion):**
+When a trend candidate is identified, query Google Trends to confirm whether search interest for the underlying topic is rising, flat, or declining. This grounds the Signal Velocity score in data rather than impression.
+
+```bash
+AUTH=$(echo -n "$DATAFORSEO_LOGIN:$DATAFORSEO_PASSWORD" | base64)
+curl -s -X POST "https://api.dataforseo.com/v3/keywords_data/google_trends/explore/live" \
+  -H "Authorization: Basic $AUTH" \
+  -H "Content-Type: application/json" \
+  -d '[{
+    "keywords": ["teeth whitening", "dental veneers"],
+    "location_name": "Florida,United States",
+    "date_from": "2025-12-01",
+    "date_to": "2026-06-24",
+    "type": "web"
+  }]'
+```
+
+Use the trend interest-over-time values to inform the Signal Velocity score:
+- Rising sharply in last 7–14 days → score 5
+- Moderate upward trend → score 3
+- Flat or declining → score 0–1
+
+If DataForSEO credentials are unavailable, score Signal Velocity from social signals alone and note the limitation.
 
 ### Step 2 — Hard veto check
 Before scoring, apply hard veto rules. If any veto is triggered:
@@ -129,6 +154,7 @@ Save scored data to `data/processed/trend-scores/YYYY-MM-DD_{client}_scores.json
 - **Watchlist item goes viral overnight** — escalate to Priority immediately; notify Campaign Strategist; do not wait for the weekly cycle
 
 ## Dependencies
+- DataForSEO (Google Trends API for signal velocity validation — `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD` env vars)
 - `_context/global/compliance-rules.md`
 - `_context/global/dental-service-taxonomy.md`
 - `_context/global/content-pillars.md`
