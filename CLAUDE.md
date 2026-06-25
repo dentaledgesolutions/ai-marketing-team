@@ -155,3 +155,33 @@ Skills live in `.claude/skills/`. Agents live in `.claude/agents/`.
 - **ADA**: American Dental Association — advertising guidelines referenced in compliance rules
 - **SE Florida**: Southeast Florida — Miami-Dade, Broward, and Palm Beach counties; primary target geography
 - **SEFL**: Southeast Florida — abbreviated form used in file naming conventions
+
+# >>> skill-builder >>>
+## Skill & Agent Development
+
+This project uses the Skill Builder pipeline. Skills live in `skills/`. Agents live in `.claude/agents/`.
+
+### Always
+
+- Run `skill-needs-analysis-agent` before building anything new — maps the project stack and workflow terms to missing skill categories
+- Use `skill-scout` to find existing candidates before writing any skill from scratch
+- Run `skill-audit` on every sourced skill before installing — never skip the security gate
+- Run `skill-adapt` to make a sourced skill project-native before use
+- Run `skill-eval` after every adaptation — ship only skills clearing all 5 metric thresholds: pass rate ≥ 80%, trigger accuracy ≥ 85%, resilience ≥ 8/10, project fit ≥ 7/10
+- Run `skill-refine` if any metric is below threshold — up to 10 iterations before escalating
+
+### Never
+
+- Write a skill or agent from scratch without first running `skill-scout`
+- Install an external skill with a FLAG or BLOCK verdict from `skill-audit`
+- Skip `skill-eval` after adapting a skill
+
+### Pipeline
+
+```
+skill-scout → skill-audit → skill-adapt → skill-eval → skill-refine
+agent-scout → agent-audit → agent-adapt
+```
+
+Periodic health check: `skill-guardian` — audits all skills, measures 5 metrics, refines any below-threshold skills.
+# <<< skill-builder <<<
